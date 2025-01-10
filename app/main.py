@@ -1,29 +1,18 @@
-from typing import Union
+from importlib import reload
 
+import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
-
-
-class Item(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-
+from app.items.router import router as items_router
+from app.users.router import router as users_router
 
 app = FastAPI()
+app.include_router(items_router)
+app.include_router(users_router)
+
+@app.get("/", tags=['base'])
+async def main_rout():
+    return {"status": 200}
 
 
-@app.get("/")
-async def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-@app.post('/post_req')
-async def post_test(item: Item):
-    return item
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", port=8000, reload=True)
